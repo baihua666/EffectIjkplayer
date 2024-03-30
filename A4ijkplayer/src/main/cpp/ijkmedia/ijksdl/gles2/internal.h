@@ -29,6 +29,9 @@
 #include "ijksdl/ijksdl_gles2.h"
 #include "ijksdl/ijksdl_vout.h"
 
+//CUSTOM_GL_FILTER
+#include "config.h"
+
 #define IJK_GLES_STRINGIZE(x)   #x
 #define IJK_GLES_STRINGIZE2(x)  IJK_GLES_STRINGIZE(x)
 #define IJK_GLES_STRING(x)      IJK_GLES_STRINGIZE2(x)
@@ -75,6 +78,29 @@ typedef struct IJK_GLES2_Renderer
     int     frame_sar_den;
 
     GLsizei last_buffer_width;
+
+#ifdef CUSTOM_GL_FILTER
+
+    int has_filter;
+
+    void *mp;
+    void (* func_onCreated)(void *mp);
+    void (* func_onSizeChanged)(void *mp, int width, int height);
+    int (* func_onDrawFrame)(void *mp, int textureId);
+    void (* func_onTexcoords)(void *mp, float *texcoords);
+    void (* func_onVertices)(void *mp, float *vertices);
+    void (* func_onRelease)(void *mp);
+    int view_width;
+    int view_height;
+
+    GLuint frame_buffers[1];
+    GLuint frame_textures[1];
+
+    GLfloat texcoords_test[8];
+
+    GLfloat vertices_test[8];
+
+#endif
 } IJK_GLES2_Renderer;
 
 typedef struct IJK_GLES_Matrix

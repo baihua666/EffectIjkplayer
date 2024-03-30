@@ -125,3 +125,21 @@ void ijkmp_android_set_mediacodec_select_callback(IjkMediaPlayer *mp, bool (*cal
     pthread_mutex_unlock(&mp->mutex);
     MPTRACE("ijkmp_android_set_mediacodec_select_callback()=void");
 }
+
+#ifdef CUSTOM_GL_FILTER
+
+
+void ijkmp_android_set_filter(IjkMediaPlayer *mp,int has_filter,void *onCreated,void *onSizeChanged,void *onDrawFrame,void *onTexcoords,void *onVertices,void *onRelease){
+    mp->ffplayer->vout->has_filter = has_filter;
+    if(has_filter == 1){
+        mp->ffplayer->vout->mp = mp;
+        mp->ffplayer->vout->func_onCreated = onCreated;
+        mp->ffplayer->vout->func_onSizeChanged = onSizeChanged;
+        mp->ffplayer->vout->func_onDrawFrame = onDrawFrame;
+        mp->ffplayer->vout->func_onTexcoords = onTexcoords;
+        mp->ffplayer->vout->func_onVertices = onVertices;
+        mp->ffplayer->vout->func_onRelease = onRelease;
+    }
+
+}
+#endif

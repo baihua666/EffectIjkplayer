@@ -107,6 +107,18 @@ static SDL_VoutOverlay *func_create_overlay(int width, int height, int frame_for
 {
     SDL_LockMutex(vout->mutex);
     SDL_VoutOverlay *overlay = func_create_overlay_l(width, height, frame_format, vout);
+
+#ifdef CUSTOM_GL_FILTER
+    overlay->mp = vout->mp;
+    overlay->has_filter = vout->has_filter;
+    overlay->func_onCreated = vout->func_onCreated;
+    overlay->func_onSizeChanged = vout->func_onSizeChanged;
+    overlay->func_onDrawFrame = vout->func_onDrawFrame;
+    overlay->func_onTexcoords = vout->func_onTexcoords;
+    overlay->func_onVertices = vout->func_onVertices;
+    overlay->func_onRelease = vout->func_onRelease;
+#endif
+
     SDL_UnlockMutex(vout->mutex);
     return overlay;
 }

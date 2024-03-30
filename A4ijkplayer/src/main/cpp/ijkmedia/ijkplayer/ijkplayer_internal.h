@@ -30,6 +30,10 @@
 #include "ff_ffplay.h"
 #include "ijkplayer.h"
 
+#ifdef CUSTOM_GL_FILTER
+#include "jni.h"
+#endif
+
 struct IjkMediaPlayer {
     volatile int ref_count;
     pthread_mutex_t mutex;

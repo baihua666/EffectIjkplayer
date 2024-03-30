@@ -27,6 +27,8 @@
 #include <jni.h>
 #include "ijkplayer_android_def.h"
 #include "../ijkplayer.h"
+//CUSTOM_GL_FILTER
+#include "config.h"
 
 typedef struct ijkmp_android_media_format_context {
     const char *mime_type;
@@ -41,5 +43,9 @@ void ijkmp_android_set_surface(JNIEnv *env, IjkMediaPlayer *mp, jobject android_
 void ijkmp_android_set_volume(JNIEnv *env, IjkMediaPlayer *mp, float left, float right);
 int  ijkmp_android_get_audio_session_id(JNIEnv *env, IjkMediaPlayer *mp);
 void ijkmp_android_set_mediacodec_select_callback(IjkMediaPlayer *mp, bool (*callback)(void *opaque, ijkmp_mediacodecinfo_context *mcc), void *opaque);
+
+#ifdef CUSTOM_GL_FILTER
+void ijkmp_android_set_filter(IjkMediaPlayer *mp,int has_filter,void *onCreated,void *onSizeChanged,void *onDrawFrame,void *onTexcoords,void *onVertices,void *onRelease);
+#endif
 
 #endif

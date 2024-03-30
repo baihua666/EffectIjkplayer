@@ -74,6 +74,19 @@ void IJK_GLES2_Renderer_reset(IJK_GLES2_Renderer *renderer)
             renderer->plane_textures[i] = 0;
         }
     }
+#ifdef CUSTOM_GL_FILTER
+    if(renderer->frame_textures){
+        glDeleteTextures(1, renderer->frame_textures);
+        renderer->frame_textures[0] = 0;
+    }
+    if(renderer->frame_buffers){
+        glDeleteBuffers(1,renderer->frame_buffers);
+        renderer->frame_buffers[0] = 0;
+    }
+    if(renderer->has_filter){
+        renderer->func_onRelease(renderer->mp);
+    }
+#endif
 }
 
 void IJK_GLES2_Renderer_free(IJK_GLES2_Renderer *renderer)
@@ -140,6 +153,28 @@ IJK_GLES2_Renderer *IJK_GLES2_Renderer_create_base(const char *fragment_shader_s
     renderer->av2_texcoord = glGetAttribLocation(renderer->program, "av2_Texcoord");                IJK_GLES2_checkError_TRACE("glGetAttribLocation(av2_Texcoord)");
     renderer->um4_mvp      = glGetUniformLocation(renderer->program, "um4_ModelViewProjection");    IJK_GLES2_checkError_TRACE("glGetUniformLocation(um4_ModelViewProjection)");
 
+#ifdef CUSTOM_GL_FILTER
+    renderer->texcoords_test[0] = 0.0f;
+    renderer->texcoords_test[1] = 1.0f;
+    renderer->texcoords_test[2] = 1.0f;
+    renderer->texcoords_test[3] = 1.0f;
+    renderer->texcoords_test[4] = 0.0f;
+    renderer->texcoords_test[5] = 0.0f;
+    renderer->texcoords_test[6] = 1.0f;
+    renderer->texcoords_test[7] = 0.0f;
+
+
+
+    renderer->vertices_test[0] = -1.0f;
+    renderer->vertices_test[1] = -1.0f;
+    renderer->vertices_test[2] =  1.0f;
+    renderer->vertices_test[3] = -1.0f;
+    renderer->vertices_test[4] = -1.0f;
+    renderer->vertices_test[5] =  1.0f;
+    renderer->vertices_test[6] =  1.0f;
+    renderer->vertices_test[7] =  1.0f;
+#endif
+
     return renderer;
 
 fail:
@@ -180,6 +215,19 @@ IJK_GLES2_Renderer *IJK_GLES2_Renderer_create(SDL_VoutOverlay *overlay)
     }
 
     renderer->format = overlay->format;
+
+#ifdef CUSTOM_GL_FILTER
+    renderer->has_filter=overlay->has_filter;
+    renderer->mp = overlay->mp;
+
+    renderer->func_onCreated = overlay->func_onCreated;
+    renderer->func_onSizeChanged = overlay->func_onSizeChanged;
+    renderer->func_onDrawFrame = overlay->func_onDrawFrame;
+    renderer->func_onTexcoords = overlay->func_onTexcoords;
+    renderer->func_onVertices = overlay->func_onVertices;
+    renderer->func_onRelease = overlay->func_onRelease;
+#endif
+
     return renderer;
 }
 
@@ -276,11 +324,21 @@ static void IJK_GLES2_Renderer_Vertices_apply(IJK_GLES2_Renderer *renderer)
     renderer->vertices[5] =   nH;
     renderer->vertices[6] =   nW;
     renderer->vertices[7] =   nH;
+
+#ifdef CUSTOM_GL_FILTER
+    if(renderer->has_filter){
+        renderer->func_onVertices(renderer->mp, renderer->vertices);
+    }
+#endif
 }
 
 static void IJK_GLES2_Renderer_Vertices_reloadVertex(IJK_GLES2_Renderer *renderer)
 {
+#ifdef CUSTOM_GL_FILTER
+    glVertexAttribPointer(renderer->av4_position, 2, GL_FLOAT, GL_FALSE, 0, renderer->vertices_test);    IJK_GLES2_checkError_TRACE("glVertexAttribPointer(av2_texcoord)");
+#else
     glVertexAttribPointer(renderer->av4_position, 2, GL_FLOAT, GL_FALSE, 0, renderer->vertices);    IJK_GLES2_checkError_TRACE("glVertexAttribPointer(av2_texcoord)");
+#endif
     glEnableVertexAttribArray(renderer->av4_position);                                      IJK_GLES2_checkError_TRACE("glEnableVertexAttribArray(av2_texcoord)");
 }
 
@@ -330,11 +388,21 @@ static void IJK_GLES2_Renderer_TexCoords_cropRight(IJK_GLES2_Renderer *renderer,
     renderer->texcoords[5] = 0.0f;
     renderer->texcoords[6] = 1.0f - cropRight;
     renderer->texcoords[7] = 0.0f;
+
+#ifdef CUSTOM_GL_FILTER
+    if(renderer->has_filter){
+        renderer->func_onTexcoords(renderer->mp, renderer->texcoords);
+    }
+#endif
 }
 
 static void IJK_GLES2_Renderer_TexCoords_reloadVertex(IJK_GLES2_Renderer *renderer)
 {
+#ifdef CUSTOM_GL_FILTER
+    glVertexAttribPointer(renderer->av2_texcoord, 2, GL_FLOAT, GL_FALSE, 0, renderer->texcoords_test);   IJK_GLES2_checkError_TRACE("glVertexAttribPointer(av2_texcoord)");
+#else
     glVertexAttribPointer(renderer->av2_texcoord, 2, GL_FLOAT, GL_FALSE, 0, renderer->texcoords);   IJK_GLES2_checkError_TRACE("glVertexAttribPointer(av2_texcoord)");
+#endif
     glEnableVertexAttribArray(renderer->av2_texcoord);                                              IJK_GLES2_checkError_TRACE("glEnableVertexAttribArray(av2_texcoord)");
 }
 
@@ -349,7 +417,10 @@ GLboolean IJK_GLES2_Renderer_use(IJK_GLES2_Renderer *renderer)
     assert(renderer->func_use);
     if (!renderer->func_use(renderer))
         return GL_FALSE;
-
+#ifdef CUSTOM_GL_FILTER
+    IJK_GLES2_Renderer_TexCoords_reset(renderer);
+    IJK_GLES2_Renderer_Vertices_reset(renderer);
+#else
     IJK_GLES_Matrix modelViewProj;
     IJK_GLES2_loadOrtho(&modelViewProj, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
     glUniformMatrix4fv(renderer->um4_mvp, 1, GL_FALSE, modelViewProj.m);                    IJK_GLES2_checkError_TRACE("glUniformMatrix4fv(um4_mvp)");
@@ -359,20 +430,29 @@ GLboolean IJK_GLES2_Renderer_use(IJK_GLES2_Renderer *renderer)
 
     IJK_GLES2_Renderer_Vertices_reset(renderer);
     IJK_GLES2_Renderer_Vertices_reloadVertex(renderer);
-
+#endif
     return GL_TRUE;
 }
+
+#ifdef CUSTOM_GL_FILTER
+void IJK_GLES2_Renderer_set_view_size(IJK_GLES2_Renderer *renderer,int width,int height){
+    renderer->view_width = width;
+    renderer->view_height = height;
+}
+#endif
 
 /*
  * Per-Frame routine
  */
 GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_VoutOverlay *overlay)
 {
+#ifdef CUSTOM_GL_FILTER
+#else
     if (!renderer || !renderer->func_uploadTexture)
         return GL_FALSE;
 
     glClear(GL_COLOR_BUFFER_BIT);               IJK_GLES2_checkError_TRACE("glClear");
-
+#endif
     GLsizei visible_width  = renderer->frame_width;
     GLsizei visible_height = renderer->frame_height;
     if (overlay) {
@@ -410,7 +490,10 @@ GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_Vou
         renderer->vertices_changed = 0;
 
         IJK_GLES2_Renderer_Vertices_apply(renderer);
+#ifdef CUSTOM_GL_FILTER
+#else
         IJK_GLES2_Renderer_Vertices_reloadVertex(renderer);
+#endif
 
         renderer->buffer_width  = buffer_width;
         renderer->visible_width = visible_width;
@@ -423,7 +506,62 @@ GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_Vou
         IJK_GLES2_Renderer_TexCoords_reloadVertex(renderer);
     }
 
+#ifdef CUSTOM_GL_FILTER
+    if (!renderer || !renderer->func_uploadTexture)
+        return GL_FALSE;
+    if(renderer->has_filter&&!renderer->frame_buffers[0]&&renderer->frame_width>0&&renderer->frame_height>0){
+
+        glGenTextures(1,renderer->frame_textures);
+        glBindTexture(GL_TEXTURE_2D,renderer->frame_textures[0]);
+        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,renderer->frame_width,renderer->frame_height,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glBindTexture(GL_TEXTURE_2D,0);
+
+
+        glGenFramebuffers(1,renderer->frame_buffers);
+        glBindFramebuffer(GL_FRAMEBUFFER,renderer->frame_buffers[0]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,renderer->frame_textures[0],0);
+
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
+        renderer->func_onCreated(renderer->mp);
+        renderer->func_onSizeChanged(renderer->mp, renderer->view_width, renderer->view_height);
+    }
+
+    if(renderer->has_filter&&renderer->frame_buffers[0]){
+        glBindFramebuffer(GL_FRAMEBUFFER,renderer->frame_buffers[0]);
+    }
+
+
+    renderer->func_use(renderer);
+
+    glViewport(0, 0, renderer->frame_width, renderer->frame_height);  IJK_GLES2_checkError_TRACE("glViewport");
+
+
+    glClear(GL_COLOR_BUFFER_BIT);               IJK_GLES2_checkError_TRACE("glClear");
+
+
+    IJK_GLES_Matrix modelViewProj;
+    IJK_GLES2_loadOrtho(&modelViewProj, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+    glUniformMatrix4fv(renderer->um4_mvp, 1, GL_FALSE, modelViewProj.m);                    IJK_GLES2_checkError_TRACE("glUniformMatrix4fv(um4_mvp)");
+
+    IJK_GLES2_Renderer_TexCoords_reloadVertex(renderer);
+    IJK_GLES2_Renderer_Vertices_reloadVertex(renderer);
+
+
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);      IJK_GLES2_checkError_TRACE("glDrawArrays");
 
+    if(renderer->has_filter&&renderer->frame_buffers[0]){
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
+        int result = renderer->func_onDrawFrame(renderer->mp, renderer->frame_textures[0]);
+        if (result < 0) {
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);      IJK_GLES2_checkError_TRACE("glDrawArrays");
+        }
+    }
+#else
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);      IJK_GLES2_checkError_TRACE("glDrawArrays");
+#endif
     return GL_TRUE;
 }

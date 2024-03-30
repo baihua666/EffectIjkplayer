@@ -30,6 +30,8 @@
 #include "ijksdl_mutex.h"
 #include "ijksdl_video.h"
 #include "ffmpeg/ijksdl_inc_ffmpeg.h"
+//CUSTOM_GL_FILTER
+#include "config.h"
 
 typedef struct SDL_VoutOverlay_Opaque SDL_VoutOverlay_Opaque;
 typedef struct SDL_VoutOverlay SDL_VoutOverlay;
@@ -55,6 +57,19 @@ struct SDL_VoutOverlay {
     void    (*unref)(SDL_VoutOverlay *overlay);
 
     int     (*func_fill_frame)(SDL_VoutOverlay *overlay, const AVFrame *frame);
+
+#ifdef CUSTOM_GL_FILTER
+
+    int has_filter;
+
+    void *mp;
+    void (* func_onCreated)(void);
+    void (* func_onSizeChanged)(int width, int height);
+    int (* func_onDrawFrame)(int textureId);
+    void (* func_onTexcoords)(float *texcoords);
+    void (* func_onVertices)(float *vertices);
+    void (* func_onRelease)(void);
+#endif
 };
 
 typedef struct SDL_Vout_Opaque SDL_Vout_Opaque;
@@ -69,6 +84,18 @@ struct SDL_Vout {
     int (*display_overlay)(SDL_Vout *vout, SDL_VoutOverlay *overlay);
 
     Uint32 overlay_format;
+
+#ifdef CUSTOM_GL_FILTER
+    int has_filter;
+
+    void *mp;
+    void (* func_onCreated)(void *mp);
+    void (* func_onSizeChanged)(void *mp, int width, int height);
+    int (* func_onDrawFrame)(void *mp,int textureId);
+    void (* func_onTexcoords)(void *mp, float *texcoords);
+    void (* func_onVertices)(void *mp, float *vertices);
+    void (* func_onRelease)(void *mp);
+#endif
 };
 
 void SDL_VoutFree(SDL_Vout *vout);

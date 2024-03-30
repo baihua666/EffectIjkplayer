@@ -17,9 +17,11 @@
 
 package com.alanwang4523.a4ijkplayerdemo.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.alanwang4523.a4ijkplayerdemo.FileUtil;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -50,6 +52,23 @@ public class FileExplorerActivity extends AppActivity {
             doOpenDirectory(lastDirectory, false);
         else
             doOpenDirectory("/", false);
+
+        try {
+//            startTest();
+            startMultiTest();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void startTest() throws IOException {
+        String filePath = FileUtil.copyAssetFileToCache(this, "green_video.mp4");
+        VideoActivity.intentTo(this, filePath, "test");
+    }
+
+    void startMultiTest() throws IOException {
+        Intent intent = new Intent(this, MultiVideoActivity.class);
+        startActivity(intent);
     }
 
     @Override

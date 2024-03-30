@@ -73,4 +73,9 @@ GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_Vou
 #define IJK_GLES2_GRAVITY_RESIZE_ASPECT_FILL    (2) // Preserve aspect ratio; fill view bounds.
 GLboolean IJK_GLES2_Renderer_setGravity(IJK_GLES2_Renderer *renderer, int gravity, GLsizei view_width, GLsizei view_height);
 
+#include "config.h"
+#ifdef CUSTOM_GL_FILTER
+void IJK_GLES2_Renderer_set_view_size(IJK_GLES2_Renderer *renderer,int width,int height);
+#endif
+
 #endif

@@ -40,6 +40,10 @@
 #include "ijksdl/android/ijksdl_codec_android_mediadef.h"
 #include "ijkavformat/ijkavformat.h"
 
+#ifdef CUSTOM_GL_FILTER
+#include "ijkplayer_internal.h"
+#endif
+
 #define JNI_MODULE_PACKAGE      "tv/danmaku/ijk/media/player"
 #define JNI_CLASS_IJKPLAYER     "tv/danmaku/ijk/media/player/IjkMediaPlayer"
 #define JNI_IJK_MEDIA_EXCEPTION "tv/danmaku/ijk/media/player/exceptions/IjkMediaException"
@@ -379,6 +383,13 @@ IjkMediaPlayer_release(JNIEnv *env, jobject thiz)
     jni_set_media_data_source(env, thiz, NULL);
 
     ijkmp_dec_ref_p(&mp);
+
+#ifdef CUSTOM_GL_FILTER
+//    if(mp->filter){
+//        (*env)->DeleteGlobalRef(env,mp->filter);
+//        mp->filter = NULL;
+//    }
+#endif
 }
 
 static void IjkMediaPlayer_native_setup(JNIEnv *env, jobject thiz, jobject weak_this);
@@ -1127,9 +1138,104 @@ LABEL_RETURN:
     return;
 }
 
+#ifdef CUSTOM_GL_FILTER
 
+void onCreated(void *mp){
+    JNIEnv *env = NULL;
+    IjkMediaPlayer *player = (IjkMediaPlayer*)mp;
+    jobject weak_this = (jobject) player->weak_thiz;
 
+    if (JNI_OK != SDL_JNI_SetupThreadEnv(&env)) {
+        ALOGE("%s: onCreated failed\n", __func__);
+        return;
+    }
 
+    J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onFilterCreated__catchAll(env, weak_this);
+}
+
+void onSizeChanged(void *mp, int width, int height){
+    JNIEnv *env = NULL;
+    IjkMediaPlayer *player = (IjkMediaPlayer*)mp;
+    jobject weak_this = (jobject) player->weak_thiz;
+
+    if (JNI_OK != SDL_JNI_SetupThreadEnv(&env)) {
+        ALOGE("%s: onSizeChanged failed\n", __func__);
+        return;
+    }
+
+    J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onSizeChanged__catchAll(env, weak_this, width, height);
+}
+
+int onDrawFrame(void *mp, int textureId){
+    JNIEnv *env = NULL;
+    IjkMediaPlayer *player = (IjkMediaPlayer*)mp;
+    jobject weak_this = (jobject) player->weak_thiz;
+
+    if (JNI_OK != SDL_JNI_SetupThreadEnv(&env)) {
+        ALOGE("%s: onSizeChanged failed\n", __func__);
+        return -1;
+    }
+
+    return J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onDrawFrame__catchAll(env, weak_this, textureId);
+}
+
+void onTexcoords(void *mp, float *texcoords){
+    JNIEnv *env = NULL;
+    IjkMediaPlayer *player = (IjkMediaPlayer*)mp;
+    jobject weak_this = (jobject) player->weak_thiz;
+
+    if (JNI_OK != SDL_JNI_SetupThreadEnv(&env)) {
+        ALOGE("%s: onSizeChanged failed\n", __func__);
+        return;
+    }
+
+    jfloatArray array = (*env)->NewFloatArray(env,8);
+    (*env)->SetFloatArrayRegion(env,array, 0, 8, texcoords);
+
+    J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onTexcoords__catchAll(env, weak_this, array);
+}
+
+void onVertices(void *mp, float *vertices){
+    JNIEnv *env = NULL;
+    IjkMediaPlayer *player = (IjkMediaPlayer*)mp;
+    jobject weak_this = (jobject) player->weak_thiz;
+
+    if (JNI_OK != SDL_JNI_SetupThreadEnv(&env)) {
+        ALOGE("%s: onSizeChanged failed\n", __func__);
+        return;
+    }
+
+    jfloatArray array = (*env)->NewFloatArray(env,8);
+    (*env)->SetFloatArrayRegion(env,array, 0, 8, vertices);
+
+    J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onTexcoords__catchAll(env, weak_this, array);
+}
+
+void onRelease(void *mp){
+    JNIEnv *env = NULL;
+    IjkMediaPlayer *player = (IjkMediaPlayer*)mp;
+    jobject weak_this = (jobject) player->weak_thiz;
+
+    if (JNI_OK != SDL_JNI_SetupThreadEnv(&env)) {
+        ALOGE("%s: onSizeChanged failed\n", __func__);
+        return;
+    }
+
+    J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onRelease__catchAll(env, weak_this);
+}
+
+static void IjkMediaPlayer_native_setGLFilter(JNIEnv *env, jobject thiz, jboolean hasFilter)
+{
+    IjkMediaPlayer *mp = jni_get_media_player(env, thiz);
+
+    if(hasFilter){
+        ijkmp_android_set_filter(mp, 1, onCreated, onSizeChanged, onDrawFrame, onTexcoords, onVertices, onRelease);
+    }else{
+        ijkmp_android_set_filter(mp, 0, NULL, NULL, NULL, NULL, NULL, NULL);
+    }
+}
+
+#endif
 
 // ----------------------------------------------------------------------------
 
@@ -1180,6 +1286,9 @@ static JNINativeMethod g_methods[] = {
 
     { "native_setLogLevel",     "(I)V",                     (void *) IjkMediaPlayer_native_setLogLevel },
     { "_setFrameAtTime",        "(Ljava/lang/String;JJII)V", (void *) IjkMediaPlayer_setFrameAtTime },
+#ifdef CUSTOM_GL_FILTER
+    { "_setGLFilter",           "(Z)V", (void *) IjkMediaPlayer_native_setGLFilter },
+#endif
 };
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)

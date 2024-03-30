@@ -82,4 +82,14 @@ int J4A_loadClass__J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer(JNIEnv *env);
 #define J4AC_IjkMediaPlayer__onNativeInvoke__catchAll J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onNativeInvoke__catchAll
 #define J4A_loadClass__J4AC_IjkMediaPlayer J4A_loadClass__J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer
 
+#include "config.h"
+#ifdef CUSTOM_GL_FILTER
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onFilterCreated__catchAll(JNIEnv *env, jobject weakThiz);
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onSizeChanged__catchAll(JNIEnv *env, jobject weakThiz, jint width, jint height);
+int J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onDrawFrame__catchAll(JNIEnv *env, jobject weakThiz, jint textureId);
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onTexcoords__catchAll(JNIEnv *env, jobject weakThiz, jfloatArray texcoords);
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onVertices__catchAll(JNIEnv *env, jobject weakThiz, jfloatArray vertices);
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onRelease__catchAll(JNIEnv *env, jobject weakThiz);
+#endif
+
 #endif//J4A__tv_danmaku_ijk_media_player_IjkMediaPlayer__H

@@ -54,6 +54,7 @@ import java.util.Map;
 
 import tv.danmaku.ijk.media.player.annotations.AccessedByNative;
 import tv.danmaku.ijk.media.player.annotations.CalledByNative;
+import tv.danmaku.ijk.media.player.filter.IjkFilter;
 import tv.danmaku.ijk.media.player.misc.IAndroidIO;
 import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 import tv.danmaku.ijk.media.player.misc.ITrackInfo;
@@ -1285,4 +1286,97 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     public static native void native_profileBegin(String libName);
     public static native void native_profileEnd();
     public static native void native_setLogLevel(int level);
+
+    public void setFilter(IjkFilter filter){
+//        _setGLFilter(filter);
+        this.filter = filter;
+        _setGLFilter(filter != null);
+    }
+
+    private native void _setGLFilter(boolean hasFilter);
+
+    private IjkFilter filter;
+    @CalledByNative
+    private static void onFilterCreated(Object weakThiz) {
+        if (weakThiz == null || !(weakThiz instanceof WeakReference<?>))
+            return;
+
+        @SuppressWarnings("unchecked")
+        WeakReference<IjkMediaPlayer> weakPlayer = (WeakReference<IjkMediaPlayer>) weakThiz;
+        IjkMediaPlayer player = weakPlayer.get();
+        if (player == null)
+            return;
+
+        player.filter.onCreated();
+    }
+
+    @CalledByNative
+    private static void onFilterSizeChanged(Object weakThiz, int width, int height) {
+        if (weakThiz == null || !(weakThiz instanceof WeakReference<?>))
+            return;
+
+        @SuppressWarnings("unchecked")
+        WeakReference<IjkMediaPlayer> weakPlayer = (WeakReference<IjkMediaPlayer>) weakThiz;
+        IjkMediaPlayer player = weakPlayer.get();
+        if (player == null)
+            return;
+
+        player.filter.onSizeChanged(width, height);
+    }
+
+    @CalledByNative
+    private static int onFilterDrawFrame(Object weakThiz, int textureId) {
+        if (weakThiz == null || !(weakThiz instanceof WeakReference<?>))
+            return textureId;
+
+        @SuppressWarnings("unchecked")
+        WeakReference<IjkMediaPlayer> weakPlayer = (WeakReference<IjkMediaPlayer>) weakThiz;
+        IjkMediaPlayer player = weakPlayer.get();
+        if (player == null)
+            return textureId;
+
+        return player.filter.onDrawFrame(textureId);
+    }
+
+    @CalledByNative
+    private static void onFilterTexcoords(Object weakThiz, float[] texcoords) {
+        if (weakThiz == null || !(weakThiz instanceof WeakReference<?>))
+            return;
+
+        @SuppressWarnings("unchecked")
+        WeakReference<IjkMediaPlayer> weakPlayer = (WeakReference<IjkMediaPlayer>) weakThiz;
+        IjkMediaPlayer player = weakPlayer.get();
+        if (player == null)
+            return;
+
+        player.filter.onTexcoords(texcoords);
+    }
+
+    @CalledByNative
+    private static void onFilterVertices(Object weakThiz, float[] vertices) {
+        if (weakThiz == null || !(weakThiz instanceof WeakReference<?>))
+            return;
+
+        @SuppressWarnings("unchecked")
+        WeakReference<IjkMediaPlayer> weakPlayer = (WeakReference<IjkMediaPlayer>) weakThiz;
+        IjkMediaPlayer player = weakPlayer.get();
+        if (player == null)
+            return;
+
+        player.filter.onVertices(vertices);
+    }
+
+    @CalledByNative
+    private static void onFilterRelease(Object weakThiz) {
+        if (weakThiz == null || !(weakThiz instanceof WeakReference<?>))
+            return;
+
+        @SuppressWarnings("unchecked")
+        WeakReference<IjkMediaPlayer> weakPlayer = (WeakReference<IjkMediaPlayer>) weakThiz;
+        IjkMediaPlayer player = weakPlayer.get();
+        if (player == null)
+            return;
+
+        player.filter.onRelease();
+    }
 }

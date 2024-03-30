@@ -57,6 +57,7 @@ import tv.danmaku.ijk.media.player.misc.IjkMediaFormat;
 
 import com.alanwang4523.a4ijkplayerdemo.R;
 import com.alanwang4523.a4ijkplayerdemo.application.Settings;
+import com.alanwang4523.a4ijkplayerdemo.filter.GLRenderer;
 import com.alanwang4523.a4ijkplayerdemo.services.MediaPlayerService;
 
 public class IjkVideoView extends FrameLayout implements MediaController.MediaPlayerControl {
@@ -314,6 +315,12 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         try {
             mMediaPlayer = createPlayer(mSettings.getPlayer());
 
+            //支持seek到非关键帧
+            ((IjkMediaPlayer)mMediaPlayer).setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1);
+            mMediaPlayer.setLooping(true);
+//            mediacodec不能使用gles渲染
+//            ((IjkMediaPlayer) mMediaPlayer).setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", 1);
+
             // TODO: create SubtitleController in MediaPlayer, but we need
             // a context for the subtitle renderers
             final Context context = getContext();
@@ -380,8 +387,9 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     private void attachMediaController() {
         if (mMediaPlayer != null && mMediaController != null) {
             mMediaController.setMediaPlayer(this);
-            View anchorView = this.getParent() instanceof View ?
-                    (View) this.getParent() : this;
+//            View anchorView = this.getParent() instanceof View ?
+//                    (View) this.getParent() : this;
+            View anchorView = this;
             mMediaController.setAnchorView(anchorView);
             mMediaController.setEnabled(isInPlaybackState());
         }
@@ -408,7 +416,9 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     IMediaPlayer.OnPreparedListener mPreparedListener = new IMediaPlayer.OnPreparedListener() {
         public void onPrepared(IMediaPlayer mp) {
             mPrepareEndTime = System.currentTimeMillis();
-            mHudViewHolder.updateLoadCost(mPrepareEndTime - mPrepareStartTime);
+            if (mHudViewHolder != null) {
+                mHudViewHolder.updateLoadCost(mPrepareEndTime - mPrepareStartTime);
+            }
             mCurrentState = STATE_PREPARED;
 
             // Get the capabilities of the player for this stream
@@ -590,7 +600,9 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         @Override
         public void onSeekComplete(IMediaPlayer mp) {
             mSeekEndTime = System.currentTimeMillis();
-            mHudViewHolder.updateSeekCost(mSeekEndTime - mSeekStartTime);
+            if (mHudViewHolder != null) {
+                mHudViewHolder.updateSeekCost(mSeekEndTime - mSeekStartTime);
+            }
         }
     };
 
@@ -1065,6 +1077,10 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                     } else {
                         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", pixelFormat);
                     }
+                    //debug
+                    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", "fcc-_es2");
+
+
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 1);
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0);
 
@@ -1073,6 +1089,9 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
                 }
                 mediaPlayer = ijkMediaPlayer;
+
+                GLRenderer renderer = new GLRenderer(getContext());
+                ijkMediaPlayer.setFilter(renderer);
             }
             break;
         }

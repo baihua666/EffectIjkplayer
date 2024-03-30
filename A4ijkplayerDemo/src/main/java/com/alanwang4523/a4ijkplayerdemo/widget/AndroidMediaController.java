@@ -69,7 +69,8 @@ public class AndroidMediaController extends MediaController implements IMediaCon
 
     @Override
     public void hide() {
-        super.hide();
+//        debug
+//        super.hide();
         if (mActionBar != null)
             mActionBar.hide();
         for (View view : mShowOnceArray)

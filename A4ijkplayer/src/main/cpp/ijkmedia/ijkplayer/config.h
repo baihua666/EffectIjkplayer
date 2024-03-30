@@ -43,4 +43,8 @@
 #define FFMPEG_LOG_TAG "IJKFFMPEG"
 #endif
 
+// CUSTOM_GL_FILTER
+#define CUSTOM_GL_FILTER 1
+
+
 #endif//FFPLAY__CONFIG_H

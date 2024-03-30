@@ -20,6 +20,8 @@
  */
 
 #include "IjkMediaPlayer.h"
+//CUSTOM_GL_FILTER
+#include "config.h"
 
 typedef struct J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer {
     jclass id;
@@ -30,6 +32,14 @@ typedef struct J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer {
     jmethodID method_postEventFromNative;
     jmethodID method_onSelectCodec;
     jmethodID method_onNativeInvoke;
+#ifdef CUSTOM_GL_FILTER
+    jmethodID method_onFilterCreated;
+    jmethodID method_onFilterSizeChanged;
+    jmethodID method_onFilterDrawFrame;
+    jmethodID method_onFilterTexcoords;
+    jmethodID method_onFilterVertices;
+    jmethodID method_onFilterRelease;
+#endif
 } J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer;
 static J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer;
 
@@ -382,8 +392,109 @@ int J4A_loadClass__J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer(JNIEnv *env)
     if (class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onNativeInvoke == NULL)
         goto fail;
 
+#ifdef CUSTOM_GL_FILTER
+    class_id = class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id;
+    name     = "onFilterCreated";
+    sign     = "(Ljava/lang/Object;)V";
+    class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterCreated = J4A_GetStaticMethodID__catchAll(env, class_id, name, sign);
+    if (class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterCreated == NULL)
+        goto fail;
+
+    class_id = class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id;
+    name     = "onFilterSizeChanged";
+    sign     = "(Ljava/lang/Object;II)V";
+    class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterSizeChanged = J4A_GetStaticMethodID__catchAll(env, class_id, name, sign);
+    if (class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterSizeChanged == NULL)
+        goto fail;
+
+    class_id = class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id;
+    name     = "onFilterDrawFrame";
+    sign     = "(Ljava/lang/Object;I)I";
+    class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterDrawFrame = J4A_GetStaticMethodID__catchAll(env, class_id, name, sign);
+    if (class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterDrawFrame == NULL)
+        goto fail;
+
+    class_id = class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id;
+    name     = "onFilterTexcoords";
+    sign     = "(Ljava/lang/Object;[F)V";
+    class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterTexcoords = J4A_GetStaticMethodID__catchAll(env, class_id, name, sign);
+    if (class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterTexcoords == NULL)
+        goto fail;
+
+    class_id = class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id;
+    name     = "onFilterVertices";
+    sign     = "(Ljava/lang/Object;[F)V";
+    class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterVertices = J4A_GetStaticMethodID__catchAll(env, class_id, name, sign);
+    if (class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterVertices == NULL)
+        goto fail;
+
+    class_id = class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id;
+    name     = "onFilterRelease";
+    sign     = "(Ljava/lang/Object;)V";
+    class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterRelease = J4A_GetStaticMethodID__catchAll(env, class_id, name, sign);
+    if (class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterRelease == NULL)
+        goto fail;
+#endif
+
     J4A_ALOGD("J4ALoader: OK: '%s' loaded\n", "tv.danmaku.ijk.media.player.IjkMediaPlayer");
     ret = 0;
 fail:
     return ret;
 }
+
+#ifdef CUSTOM_GL_FILTER
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onFilterCreated__catchAll(JNIEnv *env, jobject weakThiz)
+{
+    (*env)->CallStaticVoidMethod(env, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterCreated, weakThiz);
+    if (J4A_ExceptionCheck__catchAll(env)) {
+        return;
+    }
+    return;
+}
+
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onSizeChanged__catchAll(JNIEnv *env, jobject weakThiz, jint width, jint height)
+{
+    (*env)->CallStaticVoidMethod(env, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterSizeChanged, weakThiz, width, height);
+    if (J4A_ExceptionCheck__catchAll(env)) {
+        return;
+    }
+    return;
+}
+
+int J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onDrawFrame__catchAll(JNIEnv *env, jobject weakThiz, jint textureId)
+{
+    jlong ret_value = (*env)->CallStaticIntMethod(env, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterDrawFrame, weakThiz, textureId);
+    if (J4A_ExceptionCheck__catchAll(env)) {
+        return -1;
+    }
+    return ret_value;
+}
+
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onTexcoords__catchAll(JNIEnv *env, jobject weakThiz, jfloatArray texcoords)
+{
+    (*env)->CallStaticVoidMethod(env, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterTexcoords, weakThiz, texcoords);
+    if (J4A_ExceptionCheck__catchAll(env)) {
+        return;
+    }
+    return;
+}
+
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onVertices__catchAll(JNIEnv *env, jobject weakThiz, jfloatArray vertices)
+{
+    (*env)->CallStaticVoidMethod(env, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterVertices, weakThiz, vertices);
+    if (J4A_ExceptionCheck__catchAll(env)) {
+        return;
+    }
+    return;
+}
+
+void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onRelease__catchAll(JNIEnv *env, jobject weakThiz)
+{
+    (*env)->CallStaticVoidMethod(env, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterRelease, weakThiz);
+    if (J4A_ExceptionCheck__catchAll(env)) {
+        return;
+    }
+    return;
+}
+
+#endif
