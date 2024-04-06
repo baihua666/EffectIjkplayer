@@ -40,7 +40,7 @@
 #include "ijksdl/android/ijksdl_codec_android_mediadef.h"
 #include "ijkavformat/ijkavformat.h"
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 #include "ijkplayer_internal.h"
 #endif
 
@@ -384,7 +384,7 @@ IjkMediaPlayer_release(JNIEnv *env, jobject thiz)
 
     ijkmp_dec_ref_p(&mp);
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 //    if(mp->filter){
 //        (*env)->DeleteGlobalRef(env,mp->filter);
 //        mp->filter = NULL;
@@ -1138,7 +1138,7 @@ LABEL_RETURN:
     return;
 }
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 
 void onCreated(void *mp){
     JNIEnv *env = NULL;
@@ -1286,7 +1286,7 @@ static JNINativeMethod g_methods[] = {
 
     { "native_setLogLevel",     "(I)V",                     (void *) IjkMediaPlayer_native_setLogLevel },
     { "_setFrameAtTime",        "(Ljava/lang/String;JJII)V", (void *) IjkMediaPlayer_setFrameAtTime },
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     { "_setGLFilter",           "(Z)V", (void *) IjkMediaPlayer_native_setGLFilter },
 #endif
 };

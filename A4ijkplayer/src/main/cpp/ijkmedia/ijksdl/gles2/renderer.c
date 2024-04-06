@@ -74,7 +74,7 @@ void IJK_GLES2_Renderer_reset(IJK_GLES2_Renderer *renderer)
             renderer->plane_textures[i] = 0;
         }
     }
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     if(renderer->frame_textures){
         glDeleteTextures(1, renderer->frame_textures);
         renderer->frame_textures[0] = 0;
@@ -153,7 +153,7 @@ IJK_GLES2_Renderer *IJK_GLES2_Renderer_create_base(const char *fragment_shader_s
     renderer->av2_texcoord = glGetAttribLocation(renderer->program, "av2_Texcoord");                IJK_GLES2_checkError_TRACE("glGetAttribLocation(av2_Texcoord)");
     renderer->um4_mvp      = glGetUniformLocation(renderer->program, "um4_ModelViewProjection");    IJK_GLES2_checkError_TRACE("glGetUniformLocation(um4_ModelViewProjection)");
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     renderer->texcoords_test[0] = 0.0f;
     renderer->texcoords_test[1] = 1.0f;
     renderer->texcoords_test[2] = 1.0f;
@@ -216,7 +216,7 @@ IJK_GLES2_Renderer *IJK_GLES2_Renderer_create(SDL_VoutOverlay *overlay)
 
     renderer->format = overlay->format;
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     renderer->has_filter=overlay->has_filter;
     renderer->mp = overlay->mp;
 
@@ -325,7 +325,7 @@ static void IJK_GLES2_Renderer_Vertices_apply(IJK_GLES2_Renderer *renderer)
     renderer->vertices[6] =   nW;
     renderer->vertices[7] =   nH;
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     if(renderer->has_filter){
         renderer->func_onVertices(renderer->mp, renderer->vertices);
     }
@@ -334,7 +334,7 @@ static void IJK_GLES2_Renderer_Vertices_apply(IJK_GLES2_Renderer *renderer)
 
 static void IJK_GLES2_Renderer_Vertices_reloadVertex(IJK_GLES2_Renderer *renderer)
 {
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     glVertexAttribPointer(renderer->av4_position, 2, GL_FLOAT, GL_FALSE, 0, renderer->vertices_test);    IJK_GLES2_checkError_TRACE("glVertexAttribPointer(av2_texcoord)");
 #else
     glVertexAttribPointer(renderer->av4_position, 2, GL_FLOAT, GL_FALSE, 0, renderer->vertices);    IJK_GLES2_checkError_TRACE("glVertexAttribPointer(av2_texcoord)");
@@ -389,7 +389,7 @@ static void IJK_GLES2_Renderer_TexCoords_cropRight(IJK_GLES2_Renderer *renderer,
     renderer->texcoords[6] = 1.0f - cropRight;
     renderer->texcoords[7] = 0.0f;
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     if(renderer->has_filter){
         renderer->func_onTexcoords(renderer->mp, renderer->texcoords);
     }
@@ -398,7 +398,7 @@ static void IJK_GLES2_Renderer_TexCoords_cropRight(IJK_GLES2_Renderer *renderer,
 
 static void IJK_GLES2_Renderer_TexCoords_reloadVertex(IJK_GLES2_Renderer *renderer)
 {
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     glVertexAttribPointer(renderer->av2_texcoord, 2, GL_FLOAT, GL_FALSE, 0, renderer->texcoords_test);   IJK_GLES2_checkError_TRACE("glVertexAttribPointer(av2_texcoord)");
 #else
     glVertexAttribPointer(renderer->av2_texcoord, 2, GL_FLOAT, GL_FALSE, 0, renderer->texcoords);   IJK_GLES2_checkError_TRACE("glVertexAttribPointer(av2_texcoord)");
@@ -417,14 +417,7 @@ GLboolean IJK_GLES2_Renderer_use(IJK_GLES2_Renderer *renderer)
     assert(renderer->func_use);
     if (!renderer->func_use(renderer))
         return GL_FALSE;
-#ifdef CUSTOM_GL_FILTER
-    IJK_GLES_Matrix modelViewProj;
-    IJK_GLES2_loadOrtho(&modelViewProj, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
-    glUniformMatrix4fv(renderer->um4_mvp, 1, GL_FALSE, modelViewProj.m);
 
-    IJK_GLES2_Renderer_TexCoords_reset(renderer);
-    IJK_GLES2_Renderer_Vertices_reset(renderer);
-#else
     IJK_GLES_Matrix modelViewProj;
     IJK_GLES2_loadOrtho(&modelViewProj, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
     glUniformMatrix4fv(renderer->um4_mvp, 1, GL_FALSE, modelViewProj.m);                    IJK_GLES2_checkError_TRACE("glUniformMatrix4fv(um4_mvp)");
@@ -434,11 +427,10 @@ GLboolean IJK_GLES2_Renderer_use(IJK_GLES2_Renderer *renderer)
 
     IJK_GLES2_Renderer_Vertices_reset(renderer);
     IJK_GLES2_Renderer_Vertices_reloadVertex(renderer);
-#endif
     return GL_TRUE;
 }
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 void IJK_GLES2_Renderer_set_view_size(IJK_GLES2_Renderer *renderer,int width,int height){
     renderer->view_width = width;
     renderer->view_height = height;
@@ -450,7 +442,7 @@ void IJK_GLES2_Renderer_set_view_size(IJK_GLES2_Renderer *renderer,int width,int
  */
 GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_VoutOverlay *overlay)
 {
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 #else
     if (!renderer || !renderer->func_uploadTexture)
         return GL_FALSE;
@@ -494,7 +486,7 @@ GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_Vou
         renderer->vertices_changed = 0;
 
         IJK_GLES2_Renderer_Vertices_apply(renderer);
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 #else
         IJK_GLES2_Renderer_Vertices_reloadVertex(renderer);
 #endif
@@ -510,7 +502,7 @@ GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_Vou
         IJK_GLES2_Renderer_TexCoords_reloadVertex(renderer);
     }
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     if (!renderer || !renderer->func_uploadTexture)
         return GL_FALSE;
     if(renderer->has_filter&&!renderer->frame_buffers[0]&&renderer->frame_width>0&&renderer->frame_height>0){

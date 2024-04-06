@@ -88,6 +88,8 @@ public class MultiVideoActivity extends AppCompatActivity {
         layout.setRowCount(3);
 
         String filePath = FileUtil.copyAssetFileToCache(this, "green_video.mp4");
+//        String filePath = FileUtil.copyAssetFileToCache(this, "test1.mp4");
+
 
         for (int i = 0; i < 9; i++) {
             GridLayout.Spec rowSpec = GridLayout.spec(i / 3, 1f);

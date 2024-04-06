@@ -108,7 +108,7 @@ static SDL_VoutOverlay *func_create_overlay(int width, int height, int frame_for
     SDL_LockMutex(vout->mutex);
     SDL_VoutOverlay *overlay = func_create_overlay_l(width, height, frame_format, vout);
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     overlay->mp = vout->mp;
     overlay->has_filter = vout->has_filter;
     overlay->func_onCreated = vout->func_onCreated;
@@ -157,11 +157,14 @@ static int func_display_overlay_l(SDL_Vout *vout, SDL_VoutOverlay *overlay)
     ANativeWindow *native_window = opaque->native_window;
 
     if (!native_window) {
+#if CUSTOM_NO_VIEW
+#else
         if (!opaque->null_native_window_warned) {
             opaque->null_native_window_warned = 1;
             ALOGW("func_display_overlay_l: NULL native_window");
         }
         return -1;
+#endif
     } else {
         opaque->null_native_window_warned = 1;
     }

@@ -39,7 +39,10 @@ typedef struct IJK_EGL_Opaque {
 static EGLBoolean IJK_EGL_isValid(IJK_EGL* egl)
 {
     if (egl &&
+#if CUSTOM_NO_VIEW
+#else
         egl->window &&
+#endif
         egl->display &&
         egl->surface &&
         egl->context) {
@@ -125,8 +128,11 @@ static EGLBoolean IJK_EGL_setSurfaceSize(IJK_EGL* egl, int width, int height)
 #endif
     return EGL_FALSE;
 }
-
+#if CUSTOM_NO_VIEW
+static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window, int width, int height)
+#else
 static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
+#endif
 {
     if (window && window == egl->window &&
         egl->display &&
@@ -144,8 +150,11 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
     IJK_EGL_terminate(egl);
     egl->window = window;
 
+#if CUSTOM_NO_VIEW
+#else
     if (!window)
         return EGL_FALSE;
+#endif
 
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (display == EGL_NO_DISPLAY) {
@@ -193,6 +202,8 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
             return EGL_FALSE;
         }
 
+#if CUSTOM_NO_VIEW
+#else
         int32_t width  = ANativeWindow_getWidth(window);
         int32_t height = ANativeWindow_getWidth(window);
         ALOGI("[EGL] ANativeWindow_setBuffersGeometry(f=%d);", native_visual_id);
@@ -202,8 +213,27 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
             eglTerminate(display);
             return EGL_FALSE;
         }
+#endif
+
+
     }
 #endif
+
+#if CUSTOM_NO_VIEW
+    EGLSurface surface;
+    EGLint PbufferAttributes[] = { EGL_WIDTH, width, EGL_HEIGHT, height, EGL_NONE, EGL_NONE };
+    if (!(surface = eglCreatePbufferSurface(display, config, PbufferAttributes))) {
+        ALOGE("[EGL] eglCreatePbufferSurface failed,returned error %d", eglGetError());
+        return EGL_FALSE;
+    }
+
+    EGLSurface context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+    if (context == NULL) {
+        ALOGE("[EGL] eglCreateWindowSurface failed,returned error %d", eglGetError());
+        return EGL_FALSE;
+    }
+#else
+
 
     EGLSurface surface = eglCreateWindowSurface(display, config, window, NULL);
     if (surface == EGL_NO_SURFACE) {
@@ -219,6 +249,7 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
         eglTerminate(display);
         return EGL_FALSE;
     }
+#endif
 
     if (!eglMakeCurrent(display, surface, surface, context)) {
         ALOGE("[EGL] elgMakeCurrent() failed (new)\n");
@@ -297,7 +328,7 @@ static EGLBoolean IJK_EGL_prepareRenderer(IJK_EGL* egl, SDL_VoutOverlay *overlay
     }
 
     glViewport(0, 0, egl->width, egl->height);  IJK_GLES2_checkError_TRACE("glViewport");
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     IJK_GLES2_Renderer_set_view_size(opaque->renderer,egl->width, egl->height);
 #endif
 
@@ -333,8 +364,13 @@ EGLBoolean IJK_EGL_display(IJK_EGL* egl, EGLNativeWindowType window, SDL_VoutOve
     if (!opaque)
         return EGL_FALSE;
 
+#if CUSTOM_NO_VIEW
+    if (!IJK_EGL_makeCurrent(egl, window, overlay->w, overlay->h))
+        return EGL_FALSE;
+#else
     if (!IJK_EGL_makeCurrent(egl, window))
         return EGL_FALSE;
+#endif
 
     ret = IJK_EGL_display_internal(egl, window, overlay);
     eglMakeCurrent(egl->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);

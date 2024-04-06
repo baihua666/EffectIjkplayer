@@ -58,7 +58,7 @@ struct SDL_VoutOverlay {
 
     int     (*func_fill_frame)(SDL_VoutOverlay *overlay, const AVFrame *frame);
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 
     int has_filter;
 
@@ -85,7 +85,7 @@ struct SDL_Vout {
 
     Uint32 overlay_format;
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     int has_filter;
 
     void *mp;

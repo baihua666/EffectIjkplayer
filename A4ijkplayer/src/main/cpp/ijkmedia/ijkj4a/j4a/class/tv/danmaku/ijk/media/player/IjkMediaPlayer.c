@@ -32,7 +32,7 @@ typedef struct J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer {
     jmethodID method_postEventFromNative;
     jmethodID method_onSelectCodec;
     jmethodID method_onNativeInvoke;
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     jmethodID method_onFilterCreated;
     jmethodID method_onFilterSizeChanged;
     jmethodID method_onFilterDrawFrame;
@@ -392,7 +392,7 @@ int J4A_loadClass__J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer(JNIEnv *env)
     if (class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onNativeInvoke == NULL)
         goto fail;
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
     class_id = class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id;
     name     = "onFilterCreated";
     sign     = "(Ljava/lang/Object;)V";
@@ -442,7 +442,7 @@ fail:
     return ret;
 }
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 void J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer__onFilterCreated__catchAll(JNIEnv *env, jobject weakThiz)
 {
     (*env)->CallStaticVoidMethod(env, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.id, class_J4AC_tv_danmaku_ijk_media_player_IjkMediaPlayer.method_onFilterCreated, weakThiz);

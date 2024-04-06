@@ -44,7 +44,12 @@
 #endif
 
 // CUSTOM_GL_FILTER
+// 支持自定义滤镜，回调纹理给JAVA层处理
+//
 #define CUSTOM_GL_FILTER 1
+
+// 支持空窗口，底层生成纹理，回调给上层，上层自己编制
+#define CUSTOM_NO_VIEW 0
 
 
 #endif//FFPLAY__CONFIG_H

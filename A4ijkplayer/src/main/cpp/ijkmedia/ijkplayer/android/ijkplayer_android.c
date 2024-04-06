@@ -126,7 +126,7 @@ void ijkmp_android_set_mediacodec_select_callback(IjkMediaPlayer *mp, bool (*cal
     MPTRACE("ijkmp_android_set_mediacodec_select_callback()=void");
 }
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 
 
 void ijkmp_android_set_filter(IjkMediaPlayer *mp,int has_filter,void *onCreated,void *onSizeChanged,void *onDrawFrame,void *onTexcoords,void *onVertices,void *onRelease){

@@ -53,17 +53,29 @@ public class FileExplorerActivity extends AppActivity {
         else
             doOpenDirectory("/", false);
 
-        try {
-//            startTest();
+        boolean test = true;
+        if (test) {
+            try {
+//                startTest();
+//            startTestVideoContainer();
             startMultiTest();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
+
     }
 
     void startTest() throws IOException {
-        String filePath = FileUtil.copyAssetFileToCache(this, "green_video.mp4");
+//        String filePath = FileUtil.copyAssetFileToCache(this, "green_video.mp4");
+        String filePath = FileUtil.copyAssetFileToCache(this, "test1.mp4");
         VideoActivity.intentTo(this, filePath, "test");
+    }
+
+    void startTestVideoContainer() throws IOException {
+        String filePath = FileUtil.copyAssetFileToCache(this, "test1.mp4");
+        VideoContainerActivity.intentTo(this, filePath, "test");
     }
 
     void startMultiTest() throws IOException {

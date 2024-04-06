@@ -79,7 +79,7 @@ typedef struct IJK_GLES2_Renderer
 
     GLsizei last_buffer_width;
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 
     int has_filter;
 

@@ -67,6 +67,15 @@
                 <data android:mimeType="video/*" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activities.VideoContainerActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:screenOrientation="user"
+            android:theme="@style/FullscreenTheme"
+            android:exported="true">
+        </activity>
         <activity
             android:name=".activities.MultiVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

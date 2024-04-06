@@ -30,7 +30,7 @@
 #include "ff_ffplay.h"
 #include "ijkplayer.h"
 
-#ifdef CUSTOM_GL_FILTER
+#if CUSTOM_GL_FILTER
 #include "jni.h"
 #endif
 
