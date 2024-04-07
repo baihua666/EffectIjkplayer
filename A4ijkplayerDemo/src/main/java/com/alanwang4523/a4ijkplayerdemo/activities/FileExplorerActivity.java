@@ -68,8 +68,8 @@ public class FileExplorerActivity extends AppActivity {
     }
 
     void startTest() throws IOException {
-//        String filePath = FileUtil.copyAssetFileToCache(this, "green_video.mp4");
-        String filePath = FileUtil.copyAssetFileToCache(this, "test1.mp4");
+        String filePath = FileUtil.copyAssetFileToCache(this, "green_video.mp4");
+//        String filePath = FileUtil.copyAssetFileToCache(this, "test1.mp4");
         VideoActivity.intentTo(this, filePath, "test");
     }
 
