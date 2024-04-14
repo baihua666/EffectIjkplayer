@@ -48,4 +48,7 @@ void ijkmp_android_set_mediacodec_select_callback(IjkMediaPlayer *mp, bool (*cal
 void ijkmp_android_set_filter(IjkMediaPlayer *mp,int has_filter,void *onCreated,void *onSizeChanged,void *onDrawFrame,void *onTexcoords,void *onVertices,void *onRelease);
 #endif
 
+#if CUSTOM_SHARE_EGL_CONTEXT
+void ijkmp_android_set_share_egl_context(IjkMediaPlayer *mp);
+#endif
 #endif

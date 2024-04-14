@@ -21,9 +21,12 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.opengl.GLES20;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -57,7 +60,7 @@ import tv.danmaku.ijk.media.player.misc.IjkMediaFormat;
 
 import com.alanwang4523.a4ijkplayerdemo.R;
 import com.alanwang4523.a4ijkplayerdemo.application.Settings;
-import com.alanwang4523.a4ijkplayerdemo.filter.GLRenderer;
+import com.alanwang4523.a4ijkplayerdemo.filter.GLGreenVideoFilter;
 import com.alanwang4523.a4ijkplayerdemo.services.MediaPlayerService;
 
 public class IjkVideoView extends FrameLayout implements MediaController.MediaPlayerControl {
@@ -241,6 +244,43 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         }
     }
 
+
+    private GLGreenVideoFilter filter;
+
+    private void initFilter() {
+        //debug
+        filter = new GLGreenVideoFilter(getContext());
+    }
+
+    public boolean getMattingGreenEnabled() {
+        if (filter == null) {
+            initFilter();
+        }
+        return filter.isEnabled();
+    }
+
+//    openVideo()后调用
+    public void setMattingGreenEnabled(boolean enable) {
+        if (filter == null) {
+            initFilter();
+        }
+        if (getMattingGreenEnabled() == enable) {
+            return;
+        }
+        filter.setEnabled(enable);
+        SurfaceRenderView renderView = (SurfaceRenderView) mRenderView;
+        if (enable) {
+            //                设置透明背景
+            renderView.getHolder().setFormat(PixelFormat.RGBA_8888);
+            renderView.setZOrderOnTop(true);
+//            renderView.setZOrderMediaOverlay(true);//不生效
+                renderView.setBackgroundColor(Color.TRANSPARENT);
+        }
+        else {
+            renderView.setZOrderOnTop(false);
+        }
+    }
+
     public void setHudView(TableLayout tableLayout) {
         mHudViewHolder = new InfoHudViewHolder(getContext(), tableLayout);
     }
@@ -314,6 +354,11 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
         try {
             mMediaPlayer = createPlayer(mSettings.getPlayer());
+
+            if (filter == null) {
+                initFilter();
+            }
+            ((IjkMediaPlayer)mMediaPlayer).setFilter(filter);
 
             //支持seek到非关键帧
             ((IjkMediaPlayer)mMediaPlayer).setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1);
@@ -696,6 +741,8 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                 Log.e(TAG, "onSurfaceCreated: unmatched render callback\n");
                 return;
             }
+
+            GLES20.glClearColor(0f, 0f, 0f, 0f);
 
             mSurfaceHolder = holder;
             if (mMediaPlayer != null)
@@ -1089,9 +1136,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
                 }
                 mediaPlayer = ijkMediaPlayer;
-
-                GLRenderer renderer = new GLRenderer(getContext());
-                ijkMediaPlayer.setFilter(renderer);
             }
             break;
         }

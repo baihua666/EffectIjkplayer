@@ -134,7 +134,12 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window, 
 static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
 #endif
 {
-    if (window && window == egl->window &&
+    if (
+#if CUSTOM_NO_VIEW
+
+#else
+        window && window == egl->window &&
+#endif
         egl->display &&
         egl->surface &&
         egl->context) {
@@ -219,21 +224,54 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
     }
 #endif
 
+
 #if CUSTOM_NO_VIEW
     EGLSurface surface;
-    EGLint PbufferAttributes[] = { EGL_WIDTH, width, EGL_HEIGHT, height, EGL_NONE, EGL_NONE };
-    if (!(surface = eglCreatePbufferSurface(display, config, PbufferAttributes))) {
-        ALOGE("[EGL] eglCreatePbufferSurface failed,returned error %d", eglGetError());
-        return EGL_FALSE;
-    }
+    EGLSurface context;
+    if (!window) {
+        //离屏渲染
+        EGLint PbufferAttributes[] = { EGL_WIDTH, width, EGL_HEIGHT, height, EGL_NONE, EGL_NONE };
+        if (!(surface = eglCreatePbufferSurface(display, config, PbufferAttributes))) {
+            ALOGE("[EGL] eglCreatePbufferSurface failed,returned error %d", eglGetError());
+            return EGL_FALSE;
+        }
 
-    EGLSurface context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
-    if (context == NULL) {
-        ALOGE("[EGL] eglCreateWindowSurface failed,returned error %d", eglGetError());
-        return EGL_FALSE;
-    }
+//        EGLContext *currentContext = eglGetCurrentContext();
+#if CUSTOM_SHARE_EGL_CONTEXT
+        if (egl->share_egl_context) {
+            context = eglCreateContext(display, config, egl->share_egl_context, contextAttribs);
+        }
 #else
+        context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+#endif
 
+
+
+        if (context == NULL) {
+            ALOGE("[EGL] eglCreateWindowSurface failed,returned error %d", eglGetError());
+            return EGL_FALSE;
+        }
+
+    }
+    else {
+//        原始逻辑
+        surface = eglCreateWindowSurface(display, config, window, NULL);
+        if (surface == EGL_NO_SURFACE) {
+            ALOGE("[EGL] eglCreateWindowSurface failed\n");
+            eglTerminate(display);
+            return EGL_FALSE;
+        }
+
+        context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+        if (context == EGL_NO_CONTEXT) {
+            ALOGE("[EGL] eglCreateContext failed\n");
+            eglDestroySurface(display, surface);
+            eglTerminate(display);
+            return EGL_FALSE;
+        }
+    }
+
+#else
 
     EGLSurface surface = eglCreateWindowSurface(display, config, window, NULL);
     if (surface == EGL_NO_SURFACE) {
@@ -249,10 +287,12 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
         eglTerminate(display);
         return EGL_FALSE;
     }
+
 #endif
 
     if (!eglMakeCurrent(display, surface, surface, context)) {
         ALOGE("[EGL] elgMakeCurrent() failed (new)\n");
+        IJK_GLES2_checkError_TRACE("elgMakeCurrent");
         eglDestroyContext(display, context);
         eglDestroySurface(display, surface);
         eglTerminate(display);

@@ -7,4 +7,6 @@ public interface IjkFilter {
     void onTexcoords(float[] texcoords);
     void onVertices(float[] vertices);
     void onRelease();
+
+    boolean enable();
 }

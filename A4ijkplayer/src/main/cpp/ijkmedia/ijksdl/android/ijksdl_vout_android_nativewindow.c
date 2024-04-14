@@ -211,6 +211,11 @@ static int func_display_overlay_l(SDL_Vout *vout, SDL_VoutOverlay *overlay)
 static int func_display_overlay(SDL_Vout *vout, SDL_VoutOverlay *overlay)
 {
     SDL_LockMutex(vout->mutex);
+#if CUSTOM_SHARE_EGL_CONTEXT
+    if (vout->share_egl_context != NULL && vout->opaque->egl->context == NULL) {
+        vout->opaque->egl->share_egl_context = vout->share_egl_context;
+    }
+#endif
     int retval = func_display_overlay_l(vout, overlay);
     SDL_UnlockMutex(vout->mutex);
     return retval;

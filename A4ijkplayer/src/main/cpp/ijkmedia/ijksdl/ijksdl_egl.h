@@ -32,6 +32,8 @@
 #endif
 #include "ijksdl_class.h"
 
+#include "config.h"
+
 typedef struct SDL_VoutOverlay SDL_VoutOverlay;
 typedef struct IJK_EGL_Opaque  IJK_EGL_Opaque;
 
@@ -55,6 +57,10 @@ typedef struct IJK_EGL
 
     EGLint width;
     EGLint height;
+
+#if CUSTOM_SHARE_EGL_CONTEXT
+    EGLContext share_egl_context;
+#endif
 
 #if 0
     uint8_t gles2_extensions[IJK_GLES2__MAX_EXT];

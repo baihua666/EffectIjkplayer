@@ -552,7 +552,7 @@ GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_Vou
     if(renderer->has_filter&&renderer->frame_buffers[0]){
         glBindFramebuffer(GL_FRAMEBUFFER,0);
         int result = renderer->func_onDrawFrame(renderer->mp, renderer->frame_textures[0]);
-        if (result < 0) {
+        if (result < 0 || result == renderer->frame_textures[0]) {
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);      IJK_GLES2_checkError_TRACE("glDrawArrays");
         }
     }

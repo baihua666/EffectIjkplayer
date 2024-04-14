@@ -19,20 +19,13 @@ package com.alanwang4523.a4ijkplayerdemo.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.GridLayout;
-import android.widget.TableLayout;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.alanwang4523.a4ijkplayerdemo.FileUtil;
 import com.alanwang4523.a4ijkplayerdemo.R;
-import com.alanwang4523.a4ijkplayerdemo.application.Settings;
 import com.alanwang4523.a4ijkplayerdemo.widget.AndroidMediaController;
 import com.alanwang4523.a4ijkplayerdemo.widget.IjkVideoView;
 
@@ -43,19 +36,9 @@ import java.util.List;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 public class MultiVideoActivity extends AppCompatActivity {
-    private static final String TAG = "VideoActivity";
+    private static final String TAG = "MultiVideoActivity";
 
-//    private String mVideoPath;
-    private Uri    mVideoUri;
-
-//    private AndroidMediaController mMediaController;
     private List<IjkVideoView> mVideoViewList = new ArrayList<>();
-    private TextView mToastTextView;
-    private TableLayout mHudView;
-    private ViewGroup mRightDrawer;
-
-    private Settings mSettings;
-    private boolean mBackPressed;
 
     public static Intent newIntent(Context context, String videoPath, String videoTitle) {
         Intent intent = new Intent(context, MultiVideoActivity.class);
@@ -68,8 +51,6 @@ public class MultiVideoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multi_player);
-
-        mSettings = new Settings(this);
 
         // init player
         IjkMediaPlayer.loadLibrariesOnce(null);
@@ -106,88 +87,21 @@ public class MultiVideoActivity extends AppCompatActivity {
             mVideoView.setMediaController(mMediaController);
             mVideoView.setVideoPath(filePath);
             mVideoView.start();
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                mVideoView.setBackgroundColor(getColor(R.color.ijk_color_blue_50));
-//            }
+            mVideoView.setMattingGreenEnabled(true);
 
-//            Button btn = new Button(this);
             mVideoView.setLayoutParams(params);
             layout.addView(mVideoView);
+            mVideoViewList.add(mVideoView);
         }
     }
 
     @Override
-    public void onBackPressed() {
-        mBackPressed = true;
+    protected void onDestroy() {
+        super.onDestroy();
 
-        super.onBackPressed();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        for(IjkVideoView mVideoView : mVideoViewList) {
-            if (mBackPressed || !mVideoView.isBackgroundPlayEnabled()) {
-                mVideoView.stopPlayback();
-                mVideoView.release(true);
-                mVideoView.stopBackgroundPlay();
-            } else {
-                mVideoView.enterBackground();
-            }
+        for (IjkVideoView videoView : mVideoViewList) {
+            videoView.release(true);
         }
-
-        IjkMediaPlayer.native_profileEnd();
+        mVideoViewList.clear();
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_player, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-//        if (id == R.id.action_toggle_ratio) {
-//            int aspectRatio = mVideoView.toggleAspectRatio();
-//            String aspectRatioText = MeasureHelper.getAspectRatioText(this, aspectRatio);
-//            mToastTextView.setText(aspectRatioText);
-//            mMediaController.showOnce(mToastTextView);
-//            return true;
-//        } else if (id == R.id.action_toggle_player) {
-//            int player = mVideoView.togglePlayer();
-//            String playerText = IjkVideoView.getPlayerText(this, player);
-//            mToastTextView.setText(playerText);
-//            mMediaController.showOnce(mToastTextView);
-//            return true;
-//        } else if (id == R.id.action_toggle_render) {
-//            int render = mVideoView.toggleRender();
-//            String renderText = IjkVideoView.getRenderText(this, render);
-//            mToastTextView.setText(renderText);
-//            mMediaController.showOnce(mToastTextView);
-//            return true;
-//        } else if (id == R.id.action_show_info) {
-//            mVideoView.showMediaInfo();
-//        } else if (id == R.id.action_show_tracks) {
-//            if (mDrawerLayout.isDrawerOpen(mRightDrawer)) {
-//                Fragment f = getSupportFragmentManager().findFragmentById(R.id.right_drawer);
-//                if (f != null) {
-//                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//                    transaction.remove(f);
-//                    transaction.commit();
-//                }
-//                mDrawerLayout.closeDrawer(mRightDrawer);
-//            } else {
-//                Fragment f = TracksFragment.newInstance();
-//                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//                transaction.replace(R.id.right_drawer, f);
-//                transaction.commit();
-//                mDrawerLayout.openDrawer(mRightDrawer);
-//            }
-//        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 }

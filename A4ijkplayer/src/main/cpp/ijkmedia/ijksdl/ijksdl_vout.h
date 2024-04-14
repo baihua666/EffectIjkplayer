@@ -96,6 +96,10 @@ struct SDL_Vout {
     void (* func_onVertices)(void *mp, float *vertices);
     void (* func_onRelease)(void *mp);
 #endif
+
+#if CUSTOM_SHARE_EGL_CONTEXT
+    void *share_egl_context;
+#endif
 };
 
 void SDL_VoutFree(SDL_Vout *vout);

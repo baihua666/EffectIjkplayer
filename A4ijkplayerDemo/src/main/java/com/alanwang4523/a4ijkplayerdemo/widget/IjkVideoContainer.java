@@ -19,30 +19,19 @@ package com.alanwang4523.a4ijkplayerdemo.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.MediaController;
-import android.widget.TableLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 
 import com.alanwang4523.a4ijkplayerdemo.R;
 import com.alanwang4523.a4ijkplayerdemo.application.Settings;
-import com.alanwang4523.a4ijkplayerdemo.filter.GLRenderer;
+import com.alanwang4523.a4ijkplayerdemo.filter.GLGreenVideoFilter;
 import com.alanwang4523.a4ijkplayerdemo.services.MediaPlayerService;
 
 import java.io.File;
@@ -57,10 +46,9 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkTimedText;
 import tv.danmaku.ijk.media.player.TextureMediaPlayer;
+import tv.danmaku.ijk.media.player.filter.IjkFilter;
 import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
-import tv.danmaku.ijk.media.player.misc.IMediaFormat;
 import tv.danmaku.ijk.media.player.misc.ITrackInfo;
-import tv.danmaku.ijk.media.player.misc.IjkMediaFormat;
 
 public class IjkVideoContainer implements MediaController.MediaPlayerControl {
     private String TAG = "IjkVideoView";
@@ -220,6 +208,8 @@ public class IjkVideoContainer implements MediaController.MediaPlayerControl {
 
         try {
             mMediaPlayer = createPlayer(mSettings.getPlayer());
+
+            setShareEGLContext();
 
             //支持seek到非关键帧
             ((IjkMediaPlayer)mMediaPlayer).setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1);
@@ -993,7 +983,8 @@ public class IjkVideoContainer implements MediaController.MediaPlayerControl {
                 }
                 mediaPlayer = ijkMediaPlayer;
 
-                GLRenderer renderer = new GLRenderer(mAppContext);
+                //debug
+                GLGreenVideoFilter renderer = new GLGreenVideoFilter(mAppContext);
                 ijkMediaPlayer.setFilter(renderer);
             }
             break;
@@ -1004,6 +995,16 @@ public class IjkVideoContainer implements MediaController.MediaPlayerControl {
         }
 
         return mediaPlayer;
+    }
+
+    public void setFilter(IjkFilter filter) {
+        ((IjkMediaPlayer)mMediaPlayer).setFilter(filter);
+    }
+
+    private void setShareEGLContext() {
+        if (mMediaPlayer != null) {
+            ((IjkMediaPlayer)mMediaPlayer).native_setShareEGLContext();
+        }
     }
 
     //-------------------------

@@ -1,0 +1,32 @@
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.VideoActivity"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical|center_horizontal"
+    android:orientation="vertical"
+    >
+
+    <Button
+        android:id="@+id/btn_test_ijk_player"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TEST IJK PLAYER"
+        />
+
+    <Button
+        android:id="@+id/btn_test_green_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TEST GREEN VIDEO"
+        />
+
+    <Button
+        android:id="@+id/btn_test_multi_green_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TEST MULTI GREEN VIDEO"
+        />
+</androidx.appcompat.widget.LinearLayoutCompat>

@@ -49,7 +49,11 @@
 #define CUSTOM_GL_FILTER 1
 
 // 支持空窗口，底层生成纹理，回调给上层，上层自己编制
-#define CUSTOM_NO_VIEW 0
+#define CUSTOM_NO_VIEW 1
+
+// 支持共享EGL上下文，跨线程使用纹理
+#define CUSTOM_SHARE_EGL_CONTEXT 1
+
 
 
 #endif//FFPLAY__CONFIG_H

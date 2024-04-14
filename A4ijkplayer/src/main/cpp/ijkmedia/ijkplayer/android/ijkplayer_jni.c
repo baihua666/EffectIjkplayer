@@ -1235,6 +1235,11 @@ static void IjkMediaPlayer_native_setGLFilter(JNIEnv *env, jobject thiz, jboolea
     }
 }
 
+static void IjkMediaPlayer_setShareEGLContext(JNIEnv *env, jobject thiz) {
+    IjkMediaPlayer *mp = jni_get_media_player(env, thiz);
+    ijkmp_android_set_share_egl_context(mp);
+}
+
 #endif
 
 // ----------------------------------------------------------------------------
@@ -1289,6 +1294,10 @@ static JNINativeMethod g_methods[] = {
 #if CUSTOM_GL_FILTER
     { "_setGLFilter",           "(Z)V", (void *) IjkMediaPlayer_native_setGLFilter },
 #endif
+#if CUSTOM_SHARE_EGL_CONTEXT
+    { "native_setShareEGLContext",    "()V", (void *) IjkMediaPlayer_setShareEGLContext },
+#endif
+
 };
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)

@@ -25,7 +25,7 @@ vec2 RGBtoUV(vec3 rgb) {
 
 vec4 ProcessChromaKey(vec2 texCoord) {
     vec4 rgba = texture2D(tex, texCoord);
-//    vec3 keyColor = vec3(0.449,0.805,0.414);
+// todo,debug
     vec3 keyColor = vec3(0.0,1.0,0.0);
     float similarity = 0.4;
     float smoothness = 0.08;

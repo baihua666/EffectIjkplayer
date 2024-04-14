@@ -20,8 +20,13 @@ package com.alanwang4523.a4ijkplayerdemo.activities;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.opengl.GLES30;
+import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -49,10 +54,17 @@ import com.alanwang4523.a4ijkplayerdemo.widget.IjkVideoContainer;
 import com.alanwang4523.a4ijkplayerdemo.widget.IjkVideoView;
 import com.alanwang4523.a4ijkplayerdemo.widget.MeasureHelper;
 
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.opengles.GL;
+import javax.microedition.khronos.opengles.GL10;
+
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+import tv.danmaku.ijk.media.player.filter.IjkFilter;
 import tv.danmaku.ijk.media.player.misc.ITrackInfo;
 
-public class VideoContainerActivity extends AppCompatActivity implements TracksFragment.ITrackHolder {
+public class VideoContainerActivity extends AppCompatActivity implements TracksFragment.ITrackHolder, GLSurfaceView.Renderer {
     private static final String TAG = "VideoActivity";
 
     private String mVideoPath;
@@ -68,6 +80,8 @@ public class VideoContainerActivity extends AppCompatActivity implements TracksF
     private Settings mSettings;
     private boolean mBackPressed;
 
+    private GLSurfaceView mGLSurfaceView;
+
     public static Intent newIntent(Context context, String videoPath, String videoTitle) {
         Intent intent = new Intent(context, VideoContainerActivity.class);
         intent.putExtra("videoPath", videoPath);
@@ -82,7 +96,17 @@ public class VideoContainerActivity extends AppCompatActivity implements TracksF
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player);
+        setContentView(R.layout.activity_surface_player);
+
+        // init player
+        IjkMediaPlayer.loadLibrariesOnce(null);
+        IjkMediaPlayer.native_profileBegin("libijkplayer.so");
+
+        initGLView();
+//        if (true) {
+//            return;
+//        }
+
 
         mSettings = new Settings(this);
 
@@ -138,11 +162,15 @@ public class VideoContainerActivity extends AppCompatActivity implements TracksF
         mDrawerLayout.setScrimColor(Color.TRANSPARENT);
 
         // init player
-        IjkMediaPlayer.loadLibrariesOnce(null);
-        IjkMediaPlayer.native_profileBegin("libijkplayer.so");
+//        IjkMediaPlayer.loadLibrariesOnce(null);
+//        IjkMediaPlayer.native_profileBegin("libijkplayer.so");
 
-        findViewById(R.id.video_view).setVisibility(View.GONE);
+//        findViewById(R.id.video_view).setVisibility(View.GONE);
 
+//        initPlayer();
+    }
+
+    void initPlayer() {
         mVideoView = new IjkVideoContainer(this);
 
 //        mVideoView.setMediaController(mMediaController);
@@ -157,8 +185,64 @@ public class VideoContainerActivity extends AppCompatActivity implements TracksF
             finish();
             return;
         }
+        mVideoView.setFilter(new IjkFilter() {
+            @Override
+            public void onCreated() {
+
+            }
+
+            @Override
+            public void onSizeChanged(int width, int height) {
+                textureWidth = width;
+                textureHeight = height;
+            }
+
+            @Override
+            public int onDrawFrame(int textureId) {
+                EGLContext context = ((EGL10) EGLContext.getEGL()).eglGetCurrentContext();
+                if (context.equals(EGL10.EGL_NO_CONTEXT)) {
+                    Log.d("", "TEST");
+                }
+                GL gl = context.getGL();
+                Log.d("", "TEST111");
+
+
+                VideoContainerActivity.this.textureId = textureId;
+                return 0;
+            }
+
+            @Override
+            public void onTexcoords(float[] texcoords) {
+
+            }
+
+            @Override
+            public void onVertices(float[] vertices) {
+
+            }
+
+            @Override
+            public void onRelease() {
+
+            }
+
+            @Override
+            public boolean enable() {
+                return true;
+            }
+        });
         mVideoView.start();
+
+        EGLContext context = ((EGL10) EGLContext.getEGL()).eglGetCurrentContext();
+        if (context.equals(EGL10.EGL_NO_CONTEXT)) {
+            Log.d("", "TEST");
+        }
     }
+
+    int textureId = -1;
+    int textureWidth = 0;
+    int textureHeight = 0;
+
 
     @Override
     public void onBackPressed() {
@@ -256,4 +340,112 @@ public class VideoContainerActivity extends AppCompatActivity implements TracksF
 
         return mVideoView.getSelectedTrack(trackType);
     }
+
+    private int[] imgArray = {
+            R.mipmap.img1};
+    private int[] mTextures =  new int[1];
+    private int mImageWidth;
+    private int mImageHeight;
+    private boolean mInitialized = false;
+    private TextureRenderer mTexRenderer = new TextureRenderer();
+
+    private void initGLView() {
+        mGLSurfaceView = findViewById(R.id.glSurfaceView);
+//        mGLSurfaceView.setPreserveEGLContextOnPause(true);
+        mGLSurfaceView.setEGLContextClientVersion(2);
+//        mGLSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+        mGLSurfaceView.setRenderer(this);
+        mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+
+        mGLSurfaceView.requestRender();
+    }
+
+    @Override
+    public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
+        EGLContext context = ((EGL10) EGLContext.getEGL()).eglGetCurrentContext();
+        if (context.equals(EGL10.EGL_NO_CONTEXT)) {
+
+            Log.d("", "TEST");
+        }
+        GL10 gl = (GL10)context.getGL();
+        Log.d("", "TEST111");
+        initPlayer();
+
+    }
+
+    @Override
+    public void onSurfaceChanged(GL10 gl10, int width, int height) {
+        if(mTexRenderer !=null)
+        {
+            mTexRenderer.updateViewSize(width, height);
+        }
+    }
+
+    @Override
+    public void onDrawFrame(GL10 gl10) {
+//懒加载
+        drawFrame();
+    }
+
+    public void drawFrame() {
+        if(!mInitialized){
+            mTexRenderer.init();
+            mInitialized = true;
+        }
+
+        //渲染当前帧
+        if (textureId > 0) {
+            renderFrame(textureId);
+        }
+        else {
+            renderFrameInResource(imgArray[0]);  //通过资源文件显示
+        }
+    }
+
+    private void initImage(int resource_id) {
+        GLES30.glDeleteTextures(1,mTextures,0);
+
+        // Generate textures
+        GLES30.glGenTextures(1, mTextures, 0);
+
+        // Load input bitmap
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),resource_id);
+        mImageWidth = bitmap.getWidth();
+        mImageHeight = bitmap.getHeight();
+        mTexRenderer.updateTextureSize(mImageWidth, mImageHeight);
+
+        // Upload to texture
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mTextures[0]);
+        GLToolBox.checkGlError("glBindTexture");
+        try {
+            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0);
+        }catch (RuntimeException e)
+        {
+            Log.e("GLError", "loadTexture: " );
+        }
+
+        // Set texture parameters
+        GLToolBox.initTexParams();
+    }
+
+    private void renderFrameInResource(int resource_id)
+    {
+        if (mTextures[0] == 0) {
+            initImage(resource_id);
+        }
+
+        mTexRenderer.renderTexture(mTextures[0]);
+    }
+
+    private void renderFrame(int textureId)
+    {
+        mTexRenderer.updateTextureSize(textureWidth, textureHeight);
+
+        // Set texture parameters
+        GLToolBox.initTexParams();
+        GLToolBox.checkGlError("glUseProgram");
+
+        mTexRenderer.renderTexture(textureId);
+    }
+
 }
