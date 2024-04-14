@@ -383,13 +383,6 @@ IjkMediaPlayer_release(JNIEnv *env, jobject thiz)
     jni_set_media_data_source(env, thiz, NULL);
 
     ijkmp_dec_ref_p(&mp);
-
-#if CUSTOM_GL_FILTER
-//    if(mp->filter){
-//        (*env)->DeleteGlobalRef(env,mp->filter);
-//        mp->filter = NULL;
-//    }
-#endif
 }
 
 static void IjkMediaPlayer_native_setup(JNIEnv *env, jobject thiz, jobject weak_this);
