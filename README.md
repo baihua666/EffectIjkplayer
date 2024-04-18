@@ -1,5 +1,5 @@
 # EffectIjkplayer
-ijkplayer green video filter effect
+ijkplayer green video filter effect,alpha video overlay.
 
 ## 效果预览
 ### 原视频, 无滤镜效果

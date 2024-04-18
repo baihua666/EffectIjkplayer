@@ -1000,6 +1000,7 @@ public class IjkVideoContainer implements MediaController.MediaPlayerControl {
         return mediaPlayer;
     }
 
+//    CUSTOM_SHARE_EGL_CONTEXT
     private void setShareEGLContext() {
         if (mMediaPlayer != null) {
             ((IjkMediaPlayer)mMediaPlayer).native_setShareEGLContext();

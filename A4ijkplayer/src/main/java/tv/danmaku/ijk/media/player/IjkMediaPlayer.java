@@ -1287,7 +1287,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     public static native void native_profileEnd();
     public static native void native_setLogLevel(int level);
 
-
+//CUSTOM_SHARE_EGL_CONTEXT
     public native void native_setShareEGLContext();
 
     public void setFilter(IjkFilter filter){

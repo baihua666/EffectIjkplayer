@@ -1228,10 +1228,12 @@ static void IjkMediaPlayer_native_setGLFilter(JNIEnv *env, jobject thiz, jboolea
     }
 }
 
+#if CUSTOM_SHARE_EGL_CONTEXT
 static void IjkMediaPlayer_setShareEGLContext(JNIEnv *env, jobject thiz) {
     IjkMediaPlayer *mp = jni_get_media_player(env, thiz);
     ijkmp_android_set_share_egl_context(mp);
 }
+#endif
 
 #endif
 
