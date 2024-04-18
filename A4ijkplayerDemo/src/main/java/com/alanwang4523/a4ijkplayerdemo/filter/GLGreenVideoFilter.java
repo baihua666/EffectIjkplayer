@@ -5,6 +5,7 @@ import android.graphics.Rect;
 import android.opengl.GLES20;
 
 import com.alanwang4523.a4ijkplayerdemo.R;
+import com.alanwang4523.a4ijkplayerdemo.gles.GLFrameBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -98,6 +99,13 @@ public class GLGreenVideoFilter implements IjkFilter {
 
     boolean createSurface = true;
 
+    private boolean useFBO = false;
+    private GLFrameBuffer frameBuffer;
+
+    public void setUseFBO(boolean useFBO){
+        this.useFBO = useFBO;
+    }
+
     @Override
     public int onDrawFrame(int textureId) {
         if(!enabled){
@@ -106,6 +114,13 @@ public class GLGreenVideoFilter implements IjkFilter {
         if(createSurface){
 //            显示textureId的surface
             createSurface = false;
+        }
+        if(useFBO){
+            if(frameBuffer == null){
+                frameBuffer = new GLFrameBuffer();
+                frameBuffer.prepareFramebuffer(rect.right, rect.bottom);
+            }
+            frameBuffer.bind();
         }
 
         GLES20.glUseProgram(programId);
@@ -127,6 +142,10 @@ public class GLGreenVideoFilter implements IjkFilter {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
         GLES20.glUseProgram(GLES20.GL_NONE);
+        if(useFBO){
+            frameBuffer.unbind();
+            textureId = frameBuffer.getTextureId();
+        }
         return textureId;
     }
 

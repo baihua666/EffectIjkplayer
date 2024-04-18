@@ -19,6 +19,8 @@ package com.alanwang4523.a4ijkplayerdemo.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -208,6 +210,11 @@ public class IjkVideoContainer implements MediaController.MediaPlayerControl {
 
         try {
             mMediaPlayer = createPlayer(mSettings.getPlayer());
+
+            if (greenVideoFilter == null) {
+                initGreenVideoFilter();
+            }
+            ((IjkMediaPlayer)mMediaPlayer).setFilter(greenVideoFilter);
 
             setShareEGLContext();
 
@@ -982,10 +989,6 @@ public class IjkVideoContainer implements MediaController.MediaPlayerControl {
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
                 }
                 mediaPlayer = ijkMediaPlayer;
-
-                //debug
-                GLGreenVideoFilter renderer = new GLGreenVideoFilter(mAppContext);
-                ijkMediaPlayer.setFilter(renderer);
             }
             break;
         }
@@ -995,10 +998,6 @@ public class IjkVideoContainer implements MediaController.MediaPlayerControl {
         }
 
         return mediaPlayer;
-    }
-
-    public void setFilter(IjkFilter filter) {
-        ((IjkMediaPlayer)mMediaPlayer).setFilter(filter);
     }
 
     private void setShareEGLContext() {
@@ -1180,5 +1179,53 @@ public class IjkVideoContainer implements MediaController.MediaPlayerControl {
 
     public int getSelectedTrack(int trackType) {
         return MediaPlayerCompat.getSelectedTrack(mMediaPlayer, trackType);
+    }
+
+    private IjkFilter filter;
+    public void setFilter(IjkFilter filter) {
+        this.filter = filter;
+    }
+
+    private GLGreenVideoFilter greenVideoFilter;
+
+    private void initGreenVideoFilter() {
+        //debug
+        greenVideoFilter = new GLGreenVideoFilter(mAppContext) {
+            @Override
+            public int onDrawFrame(int textureId) {
+                int result = super.onDrawFrame(textureId);
+                if (filter != null) {
+                    result = filter.onDrawFrame(result);
+                }
+                return result;
+            }
+
+            @Override
+            public void onSizeChanged(int width, int height) {
+                super.onSizeChanged(width, height);
+                if (filter != null) {
+                    filter.onSizeChanged(width, height);
+                }
+            }
+        };
+        greenVideoFilter.setUseFBO(true);
+    }
+
+    public boolean getMattingGreenEnabled() {
+        if (greenVideoFilter == null) {
+            initGreenVideoFilter();
+        }
+        return greenVideoFilter.isEnabled();
+    }
+
+    //    openVideo()后调用
+    public void setMattingGreenEnabled(boolean enable) {
+        if (greenVideoFilter == null) {
+            initGreenVideoFilter();
+        }
+        if (getMattingGreenEnabled() == enable) {
+            return;
+        }
+        greenVideoFilter.setEnabled(enable);
     }
 }

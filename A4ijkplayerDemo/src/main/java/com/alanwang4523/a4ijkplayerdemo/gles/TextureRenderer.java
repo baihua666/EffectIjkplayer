@@ -1,6 +1,9 @@
-package com.alanwang4523.a4ijkplayerdemo.activities;
+package com.alanwang4523.a4ijkplayerdemo.gles;
 
+import android.opengl.GLES20;
 import android.opengl.GLES30;
+
+import com.alanwang4523.a4ijkplayerdemo.activities.GLToolBox;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -43,8 +46,11 @@ public class TextureRenderer {
             0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
     };
 
+//    private static final float[] POS_VERTICES = {
+//            -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f
+//    };
     private static final float[] POS_VERTICES = {
-            -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f
+            -1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f
     };
 
     private static final int FLOAT_SIZE_BYTES = 4;
@@ -105,7 +111,8 @@ public class TextureRenderer {
         GLToolBox.checkGlError("glViewport");
 
         // Disable blending
-        GLES30.glDisable(GLES30.GL_BLEND);
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         // Set the vertex attributes
         GLES30.glVertexAttribPointer(mTexCoordHandle, 2, GLES30.GL_FLOAT, false,
@@ -124,7 +131,7 @@ public class TextureRenderer {
         GLES30.glUniform1i(mTexSamplerHandle, 0);
 
         // Draw
-        GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES30.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT);
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4);
     }
@@ -136,16 +143,27 @@ public class TextureRenderer {
             float relativeAspectRatio = viewAspectRatio / imgAspectRatio;
 
             float x0, y0, x1, y1;
+//            if (relativeAspectRatio > 1.0f) {
+//                x0 = -1.0f / relativeAspectRatio;
+//                y0 = -1.0f;
+//                x1 = 1.0f / relativeAspectRatio;
+//                y1 = 1.0f;
+//            } else {
+//                x0 = -1.0f;
+//                y0 = -relativeAspectRatio;
+//                x1 = 1.0f;
+//                y1 = relativeAspectRatio;
+//            }
             if (relativeAspectRatio > 1.0f) {
                 x0 = -1.0f / relativeAspectRatio;
-                y0 = -1.0f;
+                y0 = 1.0f;
                 x1 = 1.0f / relativeAspectRatio;
-                y1 = 1.0f;
+                y1 = -1.0f;
             } else {
                 x0 = -1.0f;
-                y0 = -relativeAspectRatio;
+                y0 = relativeAspectRatio;
                 x1 = 1.0f;
-                y1 = relativeAspectRatio;
+                y1 = -relativeAspectRatio;
             }
             float[] coords = new float[] { x0, y0, x1, y0, x0, y1, x1, y1 };
             mPosVertices.put(coords).position(0);

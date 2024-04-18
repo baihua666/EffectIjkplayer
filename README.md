@@ -17,7 +17,11 @@ ijkplayer green video filter effect
 <img src=./Screenshots/matting_multi.awebp width=30% />
 </div>
 
-
+### 视频叠加
+多个视频渲染到同一个GLSurfaceView上，并叠加播放实现透明视频效果
+<div align="left">
+<img src=./Screenshots/video_overlay.jpg width=30% />
+</div>
 
 ## 相关项目
 

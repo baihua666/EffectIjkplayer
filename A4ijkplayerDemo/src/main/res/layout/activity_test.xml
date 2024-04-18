@@ -29,4 +29,11 @@
         android:layout_height="wrap_content"
         android:text="TEST MULTI GREEN VIDEO"
         />
+
+    <Button
+        android:id="@+id/btn_test_video_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TEST VIDEO OVERLAY"
+        />
 </androidx.appcompat.widget.LinearLayoutCompat>

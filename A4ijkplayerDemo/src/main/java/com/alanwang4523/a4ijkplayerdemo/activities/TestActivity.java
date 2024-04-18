@@ -74,6 +74,13 @@ public class TestActivity extends AppCompatActivity {
                 }
             }
         });
+
+        findViewById(R.id.btn_test_video_overlay).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startTestVideoOverlay();
+            }
+        });
     }
 
     void startTestIJKPlayer() {
@@ -95,4 +102,9 @@ public class TestActivity extends AppCompatActivity {
 //        String filePath = FileUtil.copyAssetFileToCache(this, "test1.mp4");
 //        VideoContainerActivity.intentTo(this, filePath, "test");
 //    }
+
+    void startTestVideoOverlay() {
+        Intent intent = new Intent(this, VideoOverlayActivity.class);
+        startActivity(intent);
+    }
 }
