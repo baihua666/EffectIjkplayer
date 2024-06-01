@@ -236,7 +236,7 @@ public class VideoOverlayActivity extends AppCompatActivity implements GLSurface
         mTexProgram = new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_2D);
 
         Drawable2d drawable2d = new Drawable2d(Drawable2d.Prefab.RECTANGLE);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_launcher);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_theme_play_arrow);
 
         int mImageTexture = GlUtil.createImageTexture(bitmap);
 
@@ -246,8 +246,10 @@ public class VideoOverlayActivity extends AppCompatActivity implements GLSurface
         mTargetImage.setScale(bitmap.getWidth(), bitmap.getHeight());
 
         mTargetVideo0 = new Sprite2d(drawable2d);
+        mTargetVideo0.setMirrorY(true);
 
         mTargetVideo1 = new Sprite2d(drawable2d);
+        mTargetVideo1.setMirrorY(true);
 
         // Set the background color.
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -272,8 +274,6 @@ public class VideoOverlayActivity extends AppCompatActivity implements GLSurface
         mTargetImage.setPosition(width / 2.0f - 100, height / 2.0f + 100);
         mTargetVideo0.setPosition(width / 2.0f, height / 2.0f);
         mTargetVideo1.setPosition(width / 2.0f, height / 2.0f);
-        mTargetVideo0.setRotation(180);
-        mTargetVideo1.setRotation(180);
     }
 
     private void draw() {

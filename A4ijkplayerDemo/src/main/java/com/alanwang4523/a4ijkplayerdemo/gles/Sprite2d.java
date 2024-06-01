@@ -38,6 +38,9 @@ public class Sprite2d {
 
     private float[] mScratchMatrix = new float[16];
 
+    private boolean mirrorX = false;
+    private boolean mirrorY = false;
+
     public Sprite2d(Drawable2d drawable) {
         mDrawable = drawable;
         mColor = new float[4];
@@ -60,7 +63,7 @@ public class Sprite2d {
         if (mAngle != 0.0f) {
             Matrix.rotateM(modelView, 0, mAngle, 0.0f, 0.0f, 1.0f);
         }
-        Matrix.scaleM(modelView, 0, mScaleX, mScaleY, 1.0f);
+        Matrix.scaleM(modelView, 0, mirrorX ? - mScaleX : mScaleX, mirrorY ? - mScaleY : mScaleY, 1.0f);
         mMatrixReady = true;
     }
 
@@ -85,6 +88,22 @@ public class Sprite2d {
         mScaleX = scaleX;
         mScaleY = scaleY;
         mMatrixReady = false;
+    }
+
+    public void setMirrorX(boolean mirrorX) {
+        this.mirrorX = mirrorX;
+    }
+
+    public boolean isMirrorX() {
+        return mirrorX;
+    }
+
+    public void setMirrorY(boolean mirrorY) {
+        this.mirrorY = mirrorY;
+    }
+
+    public boolean isMirrorY() {
+        return mirrorY;
     }
 
     /**
