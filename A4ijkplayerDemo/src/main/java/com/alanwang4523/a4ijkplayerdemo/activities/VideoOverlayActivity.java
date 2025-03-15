@@ -273,7 +273,7 @@ public class VideoOverlayActivity extends AppCompatActivity implements GLSurface
 //        int smallDim = Math.min(width, height);
         mTargetImage.setPosition(width / 2.0f - 100, height / 2.0f + 100);
         mTargetVideo0.setPosition(width / 2.0f, height / 2.0f);
-        mTargetVideo1.setPosition(width / 2.0f, height / 2.0f);
+        mTargetVideo1.setPosition(width / 2.0f, height / 2.0f - 200);
     }
 
     private void draw() {
